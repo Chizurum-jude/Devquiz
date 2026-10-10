@@ -1,0 +1,776 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevQuiz — Web Development Challenge</title>
+
+<style>
+:root {
+  --bg: #0b1020;
+  --panel: #141c30;
+  --panel2: #1b2740;
+  --text: #f1f5f9;
+  --muted: #9aa9c3;
+  --blue: #67e8f9;
+  --purple: #a78bfa;
+  --green: #4ade80;
+  --red: #fb7185;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  padding: 24px 16px;
+  background:
+    radial-gradient(ellipse at top left, #172b50 0, transparent 45%),
+    var(--bg);
+  color: var(--text);
+  font-family: Inter, "Segoe UI", Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+button { font: inherit; }
+
+.topbar {
+  width: 100%;
+  max-width: 850px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 36px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  font-weight: 800;
+  font-size: 21px;
+  letter-spacing: -.5px;
+}
+
+.logo {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 13px;
+  background: linear-gradient(135deg, var(--blue), var(--purple));
+  color: #0b1020;
+  font-size: 20px;
+}
+
+.tag {
+  color: var(--blue);
+  font-size: 12px;
+  border: 1px solid #31536c;
+  border-radius: 20px;
+  padding: 7px 11px;
+}
+
+main {
+  width: 100%;
+  max-width: 700px;
+}
+
+.screen { display: none; }
+.screen.active { display: block; }
+
+.hero {
+  text-align: center;
+  padding: 32px 10px 20px;
+}
+
+.eyebrow {
+  color: var(--blue);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+h1 {
+  font-size: clamp(36px, 7vw, 58px);
+  line-height: 1.08;
+  letter-spacing: -2px;
+  margin: 18px 0;
+}
+
+.gradient {
+  background: linear-gradient(90deg, var(--blue), var(--purple));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.description {
+  max-width: 490px;
+  margin: 0 auto;
+  color: var(--muted);
+  line-height: 1.7;
+  font-size: 16px;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 30px 0;
+}
+
+.stat {
+  background: #141c30d9;
+  border: 1px solid #ffffff12;
+  border-radius: 16px;
+  padding: 20px 8px;
+  text-align: center;
+}
+
+.stat strong {
+  display: block;
+  font-size: 25px;
+  margin-bottom: 7px;
+}
+
+.stat span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.primary {
+  border: 0;
+  border-radius: 12px;
+  background: linear-gradient(100deg, var(--blue), #a5b4fc);
+  color: #10172a;
+  padding: 16px 25px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform .2s, filter .2s;
+}
+
+.primary:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.08);
+}
+
+.start-wrap { text-align: center; }
+
+.card {
+  background: #141c30eF;
+  border: 1px solid #ffffff14;
+  border-radius: 22px;
+  padding: clamp(20px, 5vw, 34px);
+  box-shadow: 0 25px 80px #0002;
+}
+
+.quiz-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.counter { color: var(--blue); font-weight: 800; }
+
+.progress-track {
+  height: 7px;
+  background: #27334b;
+  border-radius: 20px;
+  overflow: hidden;
+  margin-bottom: 30px;
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--blue), var(--purple));
+  transition: width .3s;
+}
+
+.question {
+  font-size: clamp(21px, 4vw, 28px);
+  line-height: 1.4;
+  margin: 0 0 24px;
+  letter-spacing: -.5px;
+}
+
+.options {
+  display: grid;
+  gap: 12px;
+}
+
+.option {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  text-align: left;
+  padding: 15px;
+  border: 1px solid #34425c;
+  border-radius: 12px;
+  background: var(--panel);
+  color: var(--text);
+  cursor: pointer;
+  transition: border .15s, background .15s;
+}
+
+.option:hover:not(:disabled) {
+  border-color: var(--blue);
+  background: #1a2b43;
+}
+
+.option:focus-visible, button:focus-visible {
+  outline: 3px solid var(--blue);
+  outline-offset: 3px;
+}
+
+.option:disabled { cursor: default; }
+
+.letter {
+  flex: 0 0 34px;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 9px;
+  background: #27334b;
+  color: #cbd5e1;
+  font-weight: 800;
+}
+
+.option.correct {
+  border-color: var(--green);
+  background: #123328;
+}
+
+.option.correct .letter {
+  background: var(--green);
+  color: #092216;
+}
+
+.option.wrong {
+  border-color: var(--red);
+  background: #3a1d2a;
+}
+
+.option.wrong .letter {
+  background: var(--red);
+  color: #2a1017;
+}
+
+.feedback {
+  display: none;
+  padding: 15px;
+  margin-top: 18px;
+  border-radius: 12px;
+  background: var(--panel2);
+  line-height: 1.6;
+  color: #dbeafe;
+  font-size: 14px;
+}
+
+.feedback.visible { display: block; }
+
+.feedback strong {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.quiz-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.small-muted {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.next-btn:disabled {
+  opacity: .4;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.result { text-align: center; }
+
+.result-icon {
+  width: 95px;
+  height: 95px;
+  display: grid;
+  place-items: center;
+  margin: 8px auto 20px;
+  border-radius: 28px;
+  background: linear-gradient(135deg, #1d3851, #342955);
+  font-size: 44px;
+}
+
+.result h2 {
+  font-size: 34px;
+  margin: 12px 0;
+}
+
+.score {
+  font-size: 58px;
+  font-weight: 900;
+  letter-spacing: -2px;
+  margin: 20px 0 5px;
+}
+
+.score-label { color: var(--muted); }
+
+.result-message {
+  color: var(--muted);
+  line-height: 1.7;
+  margin: 16px auto 26px;
+  max-width: 420px;
+}
+
+.result-details {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin: 25px 0;
+  text-align: left;
+}
+
+.result-box {
+  background: var(--panel2);
+  border-radius: 13px;
+  padding: 18px;
+}
+
+.result-box span {
+  color: var(--muted);
+  font-size: 12px;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.result-box strong { font-size: 24px; }
+
+footer {
+  margin-top: 42px;
+  color: #75839c;
+  font-size: 12px;
+  text-align: center;
+}
+
+@media (max-width: 480px) {
+  body { padding: 16px 12px; }
+  .topbar { margin-bottom: 15px; }
+  .brand { font-size: 18px; }
+  .tag { font-size: 10px; }
+  .stats { gap: 7px; }
+  .stat { padding: 16px 4px; }
+  .stat strong { font-size: 22px; }
+  .stat span { font-size: 10px; }
+  .quiz-bottom { align-items: flex-start; }
+  .small-muted { max-width: 140px; line-height: 1.5; }
+}
+</style>
+</head>
+
+<body>
+<header class="topbar">
+  <div class="brand">
+    <div class="logo">&lt;/&gt;</div>
+    <span>Dev<span class="gradient">Quiz</span></span>
+  </div>
+  <span class="tag">WEB DEVELOPMENT</span>
+</header>
+
+<main>
+  <section id="home" class="screen active">
+    <div class="hero">
+      <div class="eyebrow">Test your knowledge</div>
+      <h1>Think like a<br><span class="gradient">developer.</span></h1>
+      <p class="description">
+        How well do you know HTML, CSS and JavaScript?
+        Take this quick challenge and find out.
+      </p>
+    </div>
+
+    <div class="stats">
+      <div class="stat">
+        <strong>10</strong>
+        <span>Questions</span>
+      </div>
+      <div class="stat">
+        <strong>3</strong>
+        <span>Core topics</span>
+      </div>
+      <div class="stat">
+        <strong>100%</strong>
+        <span>Free to play</span>
+      </div>
+    </div>
+
+    <div class="start-wrap">
+      <button class="primary" id="startBtn">Start the quiz →</button>
+    </div>
+  </section>
+
+  <section id="quiz" class="screen">
+    <div class="card">
+      <div class="quiz-meta">
+        <span id="category">HTML & CSS</span>
+        <span class="counter" id="counter">QUESTION 1 OF 10</span>
+      </div>
+
+      <div class="progress-track">
+        <div class="progress-fill" id="progress"></div>
+      </div>
+
+      <h2 class="question" id="question"></h2>
+      <div class="options" id="options"></div>
+
+      <div class="feedback" id="feedback" aria-live="polite"></div>
+
+      <div class="quiz-bottom">
+        <span class="small-muted" id="answered">Choose your answer</span>
+        <button class="primary next-btn" id="nextBtn" disabled>
+          Next question →
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <section id="results" class="screen">
+    <div class="card result">
+      <div class="result-icon" id="resultIcon">🏆</div>
+      <div class="eyebrow">Challenge completed</div>
+      <h2 id="resultTitle">Quiz complete!</h2>
+      <div class="score" id="finalScore">0/10</div>
+      <div class="score-label" id="percentage">0% correct</div>
+      <p class="result-message" id="resultMessage"></p>
+
+      <div class="result-details">
+        <div class="result-box">
+          <span>Correct answers</span>
+          <strong id="correctCount">0</strong>
+        </div>
+        <div class="result-box">
+          <span>Incorrect answers</span>
+          <strong id="wrongCount">0</strong>
+        </div>
+      </div>
+
+      <button class="primary" id="restartBtn">↻ Try again</button>
+    </div>
+  </section>
+</main>
+
+<footer>Built for curious minds · DevQuiz © 2026</footer>
+
+<script>
+"use strict";
+
+const questions = [
+  {
+    category: "HTML",
+    question: "What is the main purpose of HTML in a website?",
+    options: [
+      "To structure the page content",
+      "To style colors and fonts",
+      "To manage server databases",
+      "To animate every element"
+    ],
+    answer: 0,
+    explanation: "HTML defines the structure and meaning of content, such as headings, paragraphs, images and links."
+  },
+  {
+    category: "CSS",
+    question: "Which CSS property changes the text color?",
+    options: [
+      "background",
+      "font-style",
+      "color",
+      "text-align"
+    ],
+    answer: 2,
+    explanation: "The color property sets the foreground color of text. Background controls the background, while text-align controls alignment."
+  },
+  {
+    category: "JavaScript",
+    question: "Which keyword declares a variable that can be reassigned?",
+    options: [
+      "const",
+      "let",
+      "fixed",
+      "static"
+    ],
+    answer: 1,
+    explanation: "A variable declared with let can be reassigned. A const binding cannot be reassigned."
+  },
+  {
+    category: "HTML",
+    question: "Which HTML element creates a clickable link?",
+    options: [
+      "<link>",
+      "<href>",
+      "<a>",
+      "<url>"
+    ],
+    answer: 2,
+    explanation: "The anchor element, written as <a>, creates a hyperlink. Its href attribute specifies the destination."
+  },
+  {
+    category: "CSS",
+    question: "What does display: flex help you do?",
+    options: [
+      "Store information in a database",
+      "Arrange elements in a flexible layout",
+      "Create a JavaScript variable",
+      "Connect a website to the internet"
+    ],
+    answer: 1,
+    explanation: "Flexbox is a CSS layout system for arranging items along a row or column and controlling spacing and alignment."
+  },
+  {
+    category: "JavaScript",
+    question: "Which symbol is commonly used for strict equality in JavaScript?",
+    options: [
+      "=",
+      "==",
+      "===",
+      "!="
+    ],
+    answer: 2,
+    explanation: "The === operator compares values without converting their types. A single = assigns a value."
+  },
+  {
+    category: "HTML",
+    question: "What is the purpose of the alt attribute on an image?",
+    options: [
+      "To add a border to the image",
+      "To describe the image in text",
+      "To increase image resolution",
+      "To make the image load faster"
+    ],
+    answer: 1,
+    explanation: "Alternative text describes an image for screen readers and can be displayed when an image cannot load."
+  },
+  {
+    category: "CSS",
+    question: "Which CSS technique helps a layout adapt to different screen sizes?",
+    options: [
+      "Media queries",
+      "HTML comments",
+      "JavaScript alerts",
+      "The title element"
+    ],
+    answer: 0,
+    explanation: "CSS media queries apply styles based on conditions such as viewport width, helping create responsive layouts."
+  },
+  {
+    category: "JavaScript",
+    question: "What does addEventListener() do?",
+    options: [
+      "Creates a new HTML file",
+      "Adds CSS to every page",
+      "Listens for an event and runs a callback",
+      "Automatically saves a website online"
+    ],
+    answer: 2,
+    explanation: "addEventListener() registers a function to run when an event occurs, such as a click or key press."
+  },
+  {
+    category: "Web basics",
+    question: "What does responsive web design mean?",
+    options: [
+      "The website only works on laptops",
+      "The website adapts to different screen sizes",
+      "The website always refreshes every second",
+      "The website requires a separate URL for each device"
+    ],
+    answer: 1,
+    explanation: "Responsive design adapts a site's layout to different viewport sizes, including phones, tablets and desktops."
+  }
+];
+
+const home = document.getElementById("home");
+const quiz = document.getElementById("quiz");
+const results = document.getElementById("results");
+const questionEl = document.getElementById("question");
+const optionsEl = document.getElementById("options");
+const feedbackEl = document.getElementById("feedback");
+const nextBtn = document.getElementById("nextBtn");
+
+let currentIndex = 0;
+let score = 0;
+let hasAnswered = false;
+
+function showScreen(screen) {
+  document.querySelectorAll(".screen").forEach(function (item) {
+    item.classList.remove("active");
+  });
+  screen.classList.add("active");
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function startQuiz() {
+  currentIndex = 0;
+  score = 0;
+  hasAnswered = false;
+  showScreen(quiz);
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const item = questions[currentIndex];
+  hasAnswered = false;
+
+  document.getElementById("category").textContent = item.category;
+  document.getElementById("counter").textContent =
+    "QUESTION " + (currentIndex + 1) + " OF " + questions.length;
+
+  document.getElementById("progress").style.width =
+    (currentIndex / questions.length * 100) + "%";
+
+  questionEl.textContent = item.question;
+  optionsEl.replaceChildren();
+  feedbackEl.textContent = "";
+  feedbackEl.classList.remove("visible");
+  nextBtn.disabled = true;
+
+  document.getElementById("answered").textContent = "Choose your answer";
+  nextBtn.textContent =
+    currentIndex === questions.length - 1
+      ? "View results →"
+      : "Next question →";
+
+  item.options.forEach(function (optionText, index) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "option";
+
+    const letter = document.createElement("span");
+    letter.className = "letter";
+    letter.textContent = String.fromCharCode(65 + index);
+
+    const label = document.createElement("span");
+    label.textContent = optionText;
+
+    button.append(letter, label);
+    button.addEventListener("click", function () {
+      chooseAnswer(index);
+    });
+
+    optionsEl.appendChild(button);
+  });
+}
+
+function chooseAnswer(selectedIndex) {
+  if (hasAnswered) return;
+  hasAnswered = true;
+
+  const item = questions[currentIndex];
+  const buttons = optionsEl.querySelectorAll(".option");
+  const isCorrect = selectedIndex === item.answer;
+
+  if (isCorrect) score++;
+
+  buttons.forEach(function (button, index) {
+    button.disabled = true;
+
+    if (index === item.answer) {
+      button.classList.add("correct");
+      button.querySelector(".letter").textContent = "✓";
+    } else if (index === selectedIndex) {
+      button.classList.add("wrong");
+      button.querySelector(".letter").textContent = "×";
+    }
+  });
+
+  const heading = document.createElement("strong");
+  heading.textContent = isCorrect ? "✓ Correct answer!" : "✕ Not quite.";
+
+  const explanation = document.createElement("span");
+  explanation.textContent = item.explanation;
+
+  feedbackEl.replaceChildren(heading, explanation);
+  feedbackEl.classList.add("visible");
+
+  document.getElementById("answered").textContent =
+    "Score: " + score + " / " + questions.length;
+
+  document.getElementById("progress").style.width =
+    ((currentIndex + 1) / questions.length * 100) + "%";
+
+  nextBtn.disabled = false;
+}
+
+function nextQuestion() {
+  if (!hasAnswered) return;
+
+  if (currentIndex < questions.length - 1) {
+    currentIndex++;
+    renderQuestion();
+  } else {
+    showResults();
+  }
+}
+
+function showResults() {
+  const percentage = Math.round(score / questions.length * 100);
+
+  document.getElementById("finalScore").textContent =
+    score + " / " + questions.length;
+
+  document.getElementById("percentage").textContent =
+    percentage + "% correct";
+
+  document.getElementById("correctCount").textContent = score;
+  document.getElementById("wrongCount").textContent =
+    questions.length - score;
+
+  let icon = "📚";
+  let title = "Keep practising!";
+  let message =
+    "Every question is a chance to learn. Review the explanations and give it another try.";
+
+  if (percentage >= 90) {
+    icon = "🏆";
+    title = "Outstanding work!";
+    message =
+      "You have a strong grasp of these web development basics. Keep building projects to sharpen your skills.";
+  } else if (percentage >= 70) {
+    icon = "🚀";
+    title = "Great job!";
+    message =
+      "You know quite a bit already. A little more practice will help you master the remaining concepts.";
+  } else if (percentage >= 50) {
+    icon = "💡";
+    title = "Good start!";
+    message =
+      "You are building your foundation. Practise HTML, CSS and JavaScript, then try the quiz again.";
+  }
+
+  document.getElementById("resultIcon").textContent = icon;
+  document.getElementById("resultTitle").textContent = title;
+  document.getElementById("resultMessage").textContent = message;
+
+  showScreen(results);
+}
+
+document.getElementById("startBtn").addEventListener("click", startQuiz);
+nextBtn.addEventListener("click", nextQuestion);
+document.getElementById("restartBtn").addEventListener("click", startQuiz);
+</script>
+</body>
+</html>
